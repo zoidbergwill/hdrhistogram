@@ -1,10 +1,11 @@
 package hdrhistogram_test
 
 import (
+	"encoding/json"
 	"math"
 	"reflect"
-	"encoding/json"
 	"testing"
+
 	"github.com/codahale/hdrhistogram"
 )
 
@@ -364,9 +365,18 @@ func TestExportImport(t *testing.T) {
 		t.Error("Could not encode snapshot to JSON")
 	}
 
-	j := string(b[:len(b)])
-
-	if j != "{\"LowestTrackableValue\":1,\"HighestTrackableValue\":1000,\"SignificantFigures\":1,\"Counts\":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4]}" {
+	var actual hdrhistogram.Snapshot
+	err = json.Unmarshal(b, &actual)
+	if err != nil {
+		t.Error("Could not decode snapshot from JSON")
+	}
+	expected := hdrhistogram.Snapshot{
+		LowestTrackableValue:  1,
+		HighestTrackableValue: 1000,
+		SignificantFigures:    1,
+		Counts:                []int64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4},
+	}
+	if !reflect.DeepEqual(actual, expected) {
 		t.Error("Not converted to JSON correctly")
 	}
 
