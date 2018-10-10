@@ -67,6 +67,10 @@ func TestMean(t *testing.T) {
 	}
 }
 
+func toFixed(num float64, precision int) float64 {
+	output := math.Pow(10, float64(precision))
+	return float64(math.Round(num*output)) / output
+}
 func TestStdDev(t *testing.T) {
 	h := hdrhistogram.New(1, 10000000, 3)
 
@@ -76,7 +80,7 @@ func TestStdDev(t *testing.T) {
 		}
 	}
 
-	if v, want := h.StdDev(), 288675.1403682715; v != want {
+	if v, want := toFixed(h.StdDev(), 8), 288675.14036827; v != want {
 		t.Errorf("StdDev was %v, but expected %v", v, want)
 	}
 }
