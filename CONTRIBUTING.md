@@ -30,5 +30,5 @@ go test
 ### Running Benchmarks
 
 ```bash
-go test -bench
+go test -bench .
 ```
