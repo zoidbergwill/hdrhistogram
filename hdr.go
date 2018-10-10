@@ -415,8 +415,8 @@ func Import(s *Snapshot) *Histogram {
 	h := New(s.LowestTrackableValue, s.HighestTrackableValue, int(s.SignificantFigures))
 	totalCount := int64(0)
 
-	for i := 0; i < len(s.Counts); i++ {
-		h.counts[i] = s.Counts[i]
+	for i, count := range s.Counts {
+		h.counts[i] = count
 		countAtIndex := h.counts[i]
 
 		if countAtIndex > 0 {
