@@ -2,6 +2,7 @@ package hdrhistogram_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"math"
 	"reflect"
 	"testing"
@@ -377,6 +378,16 @@ func TestExportImport(t *testing.T) {
 		Counts:                []int64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4},
 	}
 	if !reflect.DeepEqual(actual, expected) {
+		fmt.Println("Actual")
+		fmt.Printf("%v\n", actual.LowestTrackableValue)
+		fmt.Printf("%v\n", actual.HighestTrackableValue)
+		fmt.Printf("%v\n", actual.SignificantFigures)
+		fmt.Printf("%v\n", actual.Counts)
+		fmt.Println("Expected")
+		fmt.Printf("%v\n", expected.LowestTrackableValue)
+		fmt.Printf("%v\n", expected.HighestTrackableValue)
+		fmt.Printf("%v\n", expected.SignificantFigures)
+		fmt.Printf("%v\n", expected.Counts)
 		t.Error("Not converted to JSON correctly")
 	}
 
