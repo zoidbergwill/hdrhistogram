@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/codahale/hdrhistogram"
+	"hdrhistogram"
 )
 
 func TestHighSigFig(t *testing.T) {

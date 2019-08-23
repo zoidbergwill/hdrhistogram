@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/codahale/hdrhistogram"
+	"hdrhistogram"
 )
 
 func TestWindowedHistogram(t *testing.T) {
