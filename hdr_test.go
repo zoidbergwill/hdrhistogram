@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/codahale/hdrhistogram"
+	"github.com/zoidbergwill/hdrhistogram"
 )
 
 func TestHighSigFig(t *testing.T) {
@@ -16,7 +16,9 @@ func TestHighSigFig(t *testing.T) {
 
 	hist := hdrhistogram.New(459876, 12718782, 5)
 	for _, sample := range input {
-		hist.RecordValue(sample)
+		if err := hist.RecordValue(sample); err != nil {
+				t.Fatal(err)
+		}
 	}
 
 	if v, want := hist.ValueAtQuantile(50), int64(1048575); v != want {
@@ -296,7 +298,9 @@ func BenchmarkHistogramRecordValue(b *testing.B) {
 	b.ReportAllocs()
 
 	for i := 0; i < b.N; i++ {
-		h.RecordValue(100)
+		if err := h.RecordValue(100); err != nil {
+				b.Fatal(err)
+		}
 	}
 }
 
@@ -318,7 +322,9 @@ func TestUnitMagnitudeOverflow(t *testing.T) {
 func TestSubBucketMaskOverflow(t *testing.T) {
 	hist := hdrhistogram.New(2e7, 1e8, 5)
 	for _, sample := range [...]int64{1e8, 2e7, 3e7} {
-		hist.RecordValue(sample)
+		if err := hist.RecordValue(sample); err != nil {
+				t.Fatal(err)
+		}
 	}
 
 	for q, want := range map[float64]int64{

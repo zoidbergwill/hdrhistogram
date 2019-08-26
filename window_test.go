@@ -4,24 +4,30 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/codahale/hdrhistogram"
+	"github.com/zoidbergwill/hdrhistogram"
 )
 
 func TestWindowedHistogram(t *testing.T) {
 	w := hdrhistogram.NewWindowed(2, 1, 1000, 3)
 
 	for i := 0; i < 100; i++ {
-		w.Current.RecordValue(int64(i))
+		if err := w.Current.RecordValue(int64(i)); err != nil {
+				t.Fatal(err)
+		}
 	}
 	w.Rotate()
 
 	for i := 100; i < 200; i++ {
-		w.Current.RecordValue(int64(i))
+		if err := w.Current.RecordValue(int64(i)); err != nil {
+				t.Fatal(err)
+		}
 	}
 	w.Rotate()
 
 	for i := 200; i < 300; i++ {
-		w.Current.RecordValue(int64(i))
+		if err := w.Current.RecordValue(int64(i)); err != nil {
+				t.Fatal(err)
+		}
 	}
 
 	if v, want := w.Merge().ValueAtQuantile(50), int64(199); v != want {
