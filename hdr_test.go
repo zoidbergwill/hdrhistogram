@@ -1,6 +1,8 @@
 package hdrhistogram_test
 
 import (
+	"encoding/json"
+	"fmt"
 	"math"
 	"reflect"
 	"testing"
@@ -341,10 +343,10 @@ func TestSubBucketMaskOverflow(t *testing.T) {
 
 func TestExportImport(t *testing.T) {
 	min := int64(1)
-	max := int64(10000000)
-	sigfigs := 3
+	max := int64(1000)
+	sigfigs := 1
 	h := hdrhistogram.New(min, max, sigfigs)
-	for i := 0; i < 1000000; i++ {
+	for i := 0; i < 100; i++ {
 		if err := h.RecordValue(int64(i)); err != nil {
 			t.Fatal(err)
 		}
@@ -362,6 +364,37 @@ func TestExportImport(t *testing.T) {
 
 	if v := int(s.SignificantFigures); v != sigfigs {
 		t.Errorf("SignificantFigures was %v, but expected %v", v, sigfigs)
+	}
+
+	b, err := json.Marshal(s)
+
+	if err != nil {
+		t.Error("Could not encode snapshot to JSON")
+	}
+
+	var actual hdrhistogram.Snapshot
+	err = json.Unmarshal(b, &actual)
+	if err != nil {
+		t.Error("Could not decode snapshot from JSON")
+	}
+	expected := hdrhistogram.Snapshot{
+		LowestTrackableValue:  1,
+		HighestTrackableValue: 1000,
+		SignificantFigures:    1,
+		Counts:                []int64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4},
+	}
+	if !reflect.DeepEqual(actual, expected) {
+		fmt.Println("Actual")
+		fmt.Printf("%v\n", actual.LowestTrackableValue)
+		fmt.Printf("%v\n", actual.HighestTrackableValue)
+		fmt.Printf("%v\n", actual.SignificantFigures)
+		fmt.Printf("%v\n", actual.Counts)
+		fmt.Println("Expected")
+		fmt.Printf("%v\n", expected.LowestTrackableValue)
+		fmt.Printf("%v\n", expected.HighestTrackableValue)
+		fmt.Printf("%v\n", expected.SignificantFigures)
+		fmt.Printf("%v\n", expected.Counts)
+		t.Error("Not converted to JSON correctly")
 	}
 
 	if imported := hdrhistogram.Import(s); !imported.Equals(h) {

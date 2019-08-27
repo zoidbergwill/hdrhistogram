@@ -384,11 +384,30 @@ func (h *Histogram) Equals(other *Histogram) bool {
 // Export returns a snapshot view of the Histogram. This can be later passed to
 // Import to construct a new Histogram with the same state.
 func (h *Histogram) Export() *Snapshot {
+	highestCount := int32(0)
+	found := int64(0)
+
+	for i := int32(0); i < h.countsLen; i++ {
+		if h.counts[i] > 0 {
+			highestCount = i
+		}
+	}
+
+	counts := make([]int64, 0, highestCount)
+
+	for i := int32(0); i <= highestCount; i++ {
+		if found >= h.totalCount {
+			break
+		}
+		counts = append(counts, h.counts[i])
+		found += h.counts[i]
+	}
+
 	return &Snapshot{
 		LowestTrackableValue:  h.lowestTrackableValue,
 		HighestTrackableValue: h.highestTrackableValue,
 		SignificantFigures:    h.significantFigures,
-		Counts:                append([]int64(nil), h.counts...), // copy
+		Counts:                counts,
 	}
 }
 
@@ -396,10 +415,12 @@ func (h *Histogram) Export() *Snapshot {
 // caller must stop accessing).
 func Import(s *Snapshot) *Histogram {
 	h := New(s.LowestTrackableValue, s.HighestTrackableValue, int(s.SignificantFigures))
-	h.counts = s.Counts
 	totalCount := int64(0)
-	for i := int32(0); i < h.countsLen; i++ {
+
+	for i, count := range s.Counts {
+		h.counts[i] = count
 		countAtIndex := h.counts[i]
+
 		if countAtIndex > 0 {
 			totalCount += countAtIndex
 		}
